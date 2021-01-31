@@ -7,8 +7,6 @@ function Get-Logfiles
         Find every logfile in specified directory and return an arrylist holding paths to discovered logfiles
     .PARAMETER logFileslocation
         Path to logfiles directory
-    .PARAMETER logfile
-        If specified, only that logfile will be selected
     .PARAMETER recurse
         If specified, existing logfiles in subfolders are included
     .EXAMPLE
@@ -30,15 +28,12 @@ function Get-Logfiles
 [CmdletBinding()] 
 param (
 [Parameter(Mandatory=$true)][String]$logFileslocation,
-[Parameter(Mandatory=$false)][String]$logfile,
 [Parameter(Mandatory=$false)][switch]$recurse
 )
 
 Process
 {
-
 $DebugPreference = "Continue"
-$DebugPreference = "SilentlyContinue"
 Write-Debug -Message "logFileslocation = ${logFileslocation}"
 Write-Debug -Message "logfile = ${logfile}"
 Write-Debug -Message "Recurse = ${recurse}"
@@ -47,33 +42,10 @@ while ([System.IO.Directory]::Exists($logFileslocation) -eq $false)
 {
     $logFileslocation = Read-Host "Sorry, the provided path '${logFileslocation}' does not exists. Please try again"
 }
+Search-Logfiles
+}
+}
 
-if ([string]::IsNullOrEmpty($logfile) -eq $true)
-{
-    Search-Logfiles
-}
-elseif ([string]::IsNullOrEmpty($logfile) -eq $false)
-{
-    try {
-        if ($logfile -notmatch '.log$')
-        {
-            $logfile = "${logfile}.log"
-        }
-        $pathlogFile = Join-Path -Path $logFileslocation -ChildPath $logfile
-        while([System.IO.File]::Exists($pathlogFile) -eq $false)
-        {
-            $logfile = Read-Host "Sorry, the provided file '${pathlogFile}' does not exists. Please try again"
-            $pathlogFile = Join-Path -Path $logFileslocation -ChildPath $logfile
-        }
-        $logFilename = $logFile.ToString().Split("\")[-1].TrimEnd(".log")
-    }
-    catch {
-    }
-    Write-Host $logFilename
-    Write-Host "Path: ${pathlogFile}"
-}
-}
-}
 function Search-Logfiles 
 {
     <#  
